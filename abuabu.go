@@ -15,6 +15,8 @@ import (
 	"strings"
 )
 
+// further reading
+// https://tannerhelland.com/2011/10/01/grayscale-image-algorithm-vb6.html
 func main() {
 	args := os.Args
 	numOfShades := 2
@@ -89,6 +91,8 @@ func main() {
 	// todo
 	//imgOut.Set(point.X, point.Y, color.Black)
 
+	convertionFactor := 255 / (numOfShades - 1)
+
 	// loop to every pixel
 	for x := 0; x < point.X; x++ {
 
@@ -98,22 +102,32 @@ func main() {
 			pixel := img.At(x, y)
 
 			// get original red, green, blue and alpha
-			r, g, b, a := color.RGBAModel.Convert(pixel).RGBA()
+			originalColor := color.RGBAModel.Convert(pixel).(color.RGBA)
 
 			// http://en.wikipedia.org/wiki/Luma_%28video%29
-			red := float64(r) * 0.299
-			green := float64(g) * 0.587
-			blue := float64(b) * 0.114
+			red := float64(originalColor.R) * 0.299
+			green := float64(originalColor.G) * 0.587
+			blue := float64(originalColor.B) * 0.114
 
-			// get average
-			average := uint8((red + green + blue) / 3)
+			gray := uint8((red + green + blue))
 
-			// constract new color based on above calculation
+			// red := float64(originalColor.R) * 0.999
+			// green := float64(originalColor.G) * 0.987
+			// blue := float64(originalColor.B) * 0.966
+
+			// // get average
+			// gray := uint8((red + green + blue) / 3)
+
+			// gray shades
+
+			grayShades := uint8(float64(gray/uint8(convertionFactor))+0.5) * uint8(convertionFactor)
+
+			// construct new color based on above calculation
 			col := color.RGBA{
-				R: average,
-				G: average,
-				B: average,
-				A: uint8(a),
+				R: grayShades,
+				G: grayShades,
+				B: grayShades,
+				A: originalColor.A,
 			}
 
 			imgOut.Set(x, y, col)

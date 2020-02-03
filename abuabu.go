@@ -66,6 +66,7 @@ func main() {
 
 	// create new filename with customer prefix
 	grayFileName := fmt.Sprintf("%s/%s_abu%s", fileDir, fileName, fileExtension)
+	fmt.Println(grayFileName)
 
 	// decode image file to Image
 	img, f, err := image.Decode(fileIn)
@@ -108,9 +109,14 @@ func main() {
 			average := uint8((red + green + blue) / 3)
 
 			// constract new color based on above calculation
-			col := color.RGBA{R: average, G: average, B: average, A: uint8(a)}
+			col := color.RGBA{
+				R: average,
+				G: average,
+				B: average,
+				A: uint8(a),
+			}
 
-			imgOut.Set(point.X, point.Y, col)
+			imgOut.Set(x, y, col)
 		}
 	}
 
@@ -122,7 +128,11 @@ func main() {
 
 	defer fileOut.Close()
 
-	encode(f, imgOut, fileOut)
+	err = encode(f, imgOut, fileOut)
+	if err != nil {
+		fmt.Printf("error encode image | %s\n", err.Error())
+		os.Exit(1)
+	}
 }
 
 func encode(f string, img image.Image, input io.Writer) error {
